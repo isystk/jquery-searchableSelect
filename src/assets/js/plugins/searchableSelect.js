@@ -3,7 +3,7 @@
     // 検索機能付きセレクトボックス
     $.fn.searchableSelect = function(options){
         const defaults = {
-            clazz: undefined,
+            searchBoxClass: undefined,
             placeholder: '検索してください',
         };
         const settings = $.extend({}, defaults, options);
@@ -12,33 +12,38 @@
             let target = $(this);
 
             const layout = `
-        <div class="searchable-select">
-          <input type="text" placeholder="${settings.placeholder}" class="${settings.clazz} search-box">
-          <div class="select-options">
-            ${target.find('option').map(function() {
-                return `<div data-value="${$(this).val() || ''}">${$(this).text() || '&nbsp;'}</div>`;
-            }).get().join('')}
-          </div>
-        </div>`;
+                <div class="searchable-select">
+                    <input type="text" placeholder="${settings.placeholder}" class="${settings.searchBoxClass} search-box">
+                    <div class="select-options">
+                        ${target.find('option').map(function() {
+                            return `<div data-value="${$(this).val() || ''}">${$(this).text() || '&nbsp;'}</div>`;
+                        }).get().join('')}
+                    </div>
+                </div>
+            `;
 
-            const targetWidth = target.outerWidth(true);
             const customSelect = $(layout);
             customSelect.append(target.clone(true));
             target.replaceWith(customSelect);
             target = customSelect.find('select');
 
-            const searchableSelect = customSelect;
-            const optionsBox = $('.select-options', searchableSelect);
-            const searchBox = $('.search-box', searchableSelect);
+            const optionsBox = $('.select-options', customSelect);
+            const searchBox = $('.search-box', customSelect);
 
-            optionsBox.width(targetWidth);
-
+            // オプションを開く
             const open = () => {
                 target.hide();
                 searchBox.show();
                 optionsBox.show();
+
+                // 検索ボックスにフォーカス
+                searchBox.focus();
+
+                // オプション枠の幅を調整
+                optionsBox.width(target.outerWidth(true));
             };
 
+            // オプションを閉じる
             const close = () => {
                 target.show();
                 searchBox.hide();
@@ -74,9 +79,10 @@
 
             // セレクトボックス外をクリックした場合に非表示にする
             $(document).on('click', function (e) {
-                if (!$(e.target).closest('.searchable-select').length) {
-                    close();
+                if ($(e.target).closest('.searchable-select').length) {
+                    return;
                 }
+                close();
             });
         });
     };
