@@ -66,6 +66,7 @@
                 close();
                 optionsBox.find('div').removeClass('selected');
                 $(this).addClass('selected');
+                target.trigger('change');
             });
 
             // 検索ボックスでフィルタリング
